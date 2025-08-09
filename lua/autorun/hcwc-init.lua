@@ -32,6 +32,12 @@ local function hideCCHistory()
 		return
 	end
 
+	if not cameraOut then
+		CustomChat.frame.history:SetVisible(true)
+		hook.Remove("Think", "HideChatWithCamera_CC")
+		return
+	end
+
 	if lastChatOut ~= chatOut then
 		CustomChat.frame.history:SetVisible(chatOut)
 		lastChatOut = chatOut
