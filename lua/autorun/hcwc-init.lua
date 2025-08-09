@@ -25,7 +25,7 @@ end
 local cameraOut
 local chatOut
 
-local lastChatOut
+local lastChatOut = -1
 local function hideCCHistory()
 	if not CustomChat or not IsValid(CustomChat.frame) then
 		hook.Remove("Think", "HideChatWithCamera_CC")
