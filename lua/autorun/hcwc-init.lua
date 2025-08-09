@@ -8,7 +8,9 @@ if SERVER then
 
 		net.Start("hidechatwithcamera")
 
-		if string.find(newWep:GetClass(), "camera") then
+		if not IsValid(oldWep) or not IsValid(newWep) then
+			net.WriteBool(false)
+		elseif string.find(newWep:GetClass(), "camera") then
 			net.WriteBool(true)
 		elseif string.find(oldWep:GetClass(), "camera") then
 			net.WriteBool(false)
@@ -37,7 +39,10 @@ local function hideCCHistory()
 end
 
 local function cameraHide()
-	g_VoicePanelList:Hide()
+	if IsValid(g_VoicePanelList) then
+		g_VoicePanelList:Hide()
+	end
+
 	cameraOut = true
 
 	if CustomChat and IsValid(CustomChat.frame) then
@@ -47,7 +52,10 @@ local function cameraHide()
 end
 
 local function cameraShow()
-	g_VoicePanelList:Show()
+	if IsValid(g_VoicePanelList) then
+		g_VoicePanelList:Show()
+	end
+
 	cameraOut = nil
 
 	if CustomChat and IsValid(CustomChat.frame) then
@@ -68,7 +76,9 @@ else
 	hook.Add("PlayerSwitchWeapon", "HideChatWithCamera", function(ply, oldWep, newWep)
 		if not IsFirstTimePredicted() or ply ~= LocalPlayer() or oldWep == newWep then return end
 
-		if string.find(newWep:GetClass(), "camera") then
+		if not IsValid(oldWep) or not IsValid(newWep) then
+			cameraShow()
+		elseif string.find(newWep:GetClass(), "camera") then
 			cameraHide()
 		elseif string.find(oldWep:GetClass(), "camera") then
 			cameraShow()
