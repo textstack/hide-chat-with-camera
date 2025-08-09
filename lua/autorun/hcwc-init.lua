@@ -87,6 +87,7 @@ end)
 local hideAllGUICvar = CreateClientConVar("hide_gui_with_camera", 0, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
 
 hook.Add("HUDShouldDraw", "HideChatWithCamera", function(name)
-	if cameraOut and not chatOut and name == "CHudChat" then return false end
+	if not cameraOut then return end
+	if not chatOut and name == "CHudChat" then return false end
 	if hideAllGUICvar:GetBool() and name == "CHudGMod" then return false end
 end)
