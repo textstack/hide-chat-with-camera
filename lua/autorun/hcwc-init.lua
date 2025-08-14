@@ -20,7 +20,7 @@ if SERVER then
 end
 
 local hideChatCvar = CreateClientConVar("hide_chat_with_camera", 1, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
-local hideAllGUICvar = CreateClientConVar("hide_gui_with_camera", 0, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
+local hideGHUDCvar = CreateClientConVar("hide_ghud_with_camera", 0, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
 
 local cameraOut
 local chatOut
@@ -126,5 +126,5 @@ end)
 hook.Add("HUDShouldDraw", "HideChatWithCamera", function(name)
 	if not cameraOut then return end
 	if hideChatCvar:GetBool() and not chatOut and name == "CHudChat" then return false end
-	if hideAllGUICvar:GetBool() and name == "CHudGMod" then return false end
+	if hideGHUDCvar:GetBool() and name == "CHudGMod" then return false end
 end)
