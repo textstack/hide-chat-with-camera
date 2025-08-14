@@ -19,8 +19,8 @@ if SERVER then
 	return
 end
 
-local hideChatCvar = CreateClientConVar("hide_chat_with_camera", 1, true, false, "Whether holding the camera out hides the chat", 0, 1)
-local hideGHUDCvar = CreateClientConVar("hide_ghud_with_camera", 0, true, false, "Whether holding the camera out hides GLua hud elements", 0, 1)
+local hideChatCvar = CreateClientConVar("hide_chat_with_camera", 1, true, false, "Whether chat gets hidden with your camera out", 0, 1)
+local hideGHUDCvar = CreateClientConVar("hide_ghud_with_camera", 0, true, false, "Whether all GLua hud elements are hidden with your camera out (usually not needed)", 0, 1)
 
 local cameraOut
 local chatOut
