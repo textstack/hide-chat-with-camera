@@ -1,3 +1,8 @@
+local function hasCamera(ply, wep)
+	if not IsValid(wep) then return false end
+	return string.find(wep:GetClass(), "camera") ~= nil
+end
+
 if SERVER then
 	if not game.SinglePlayer() then return end
 
@@ -7,20 +12,15 @@ if SERVER then
 		if not IsFirstTimePredicted() or oldWep == newWep then return end
 
 		net.Start("hidechatwithcamera")
-
-		if not IsValid(oldWep) or not IsValid(newWep) then
-			net.WriteBool(false)
-		elseif string.find(newWep:GetClass(), "camera") then
-			net.WriteBool(true)
-		elseif string.find(oldWep:GetClass(), "camera") then
-			net.WriteBool(false)
-		end
-
+		net.WriteBool(hasCamera(ply, newWep))
 		net.Broadcast()
 	end)
 
 	return
 end
+
+local hideChatCvar = CreateClientConVar("hide_chat_with_camera", 1, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
+local hideAllGUICvar = CreateClientConVar("hide_gui_with_camera", 0, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
 
 local cameraOut
 local chatOut
@@ -51,6 +51,8 @@ local function cameraHide()
 
 	cameraOut = true
 
+	if not hideChatCvar:GetBool() then return end
+
 	if CustomChat and IsValid(CustomChat.frame) then
 		lastChatOut = -1
 		hook.Add("Think", "HideChatWithCamera_CC", hideCCHistory)
@@ -63,6 +65,8 @@ local function cameraShow()
 	end
 
 	cameraOut = nil
+
+	if not hideChatCvar:GetBool() then return end
 
 	if CustomChat and IsValid(CustomChat.frame) then
 		CustomChat.frame.history:SetVisible(true)
@@ -82,11 +86,9 @@ else
 	hook.Add("PlayerSwitchWeapon", "HideChatWithCamera", function(ply, oldWep, newWep)
 		if not IsFirstTimePredicted() or ply ~= LocalPlayer() or oldWep == newWep then return end
 
-		if not IsValid(oldWep) or not IsValid(newWep) then
-			cameraShow()
-		elseif string.find(newWep:GetClass(), "camera") then
+		if hasCamera(ply, newWep) then
 			cameraHide()
-		elseif string.find(oldWep:GetClass(), "camera") then
+		else
 			cameraShow()
 		end
 	end)
@@ -100,10 +102,29 @@ hook.Add("FinishChat", "HideChatWIthCamera", function()
 	chatOut = nil
 end)
 
-local hideAllGUICvar = CreateClientConVar("hide_gui_with_camera", 0, true, false, "Whether holding the camera out hides GLua GUI", 0, 1)
+cvars.AddChangeCallback("hide_chat_with_camera", function(_, oldVal, val)
+	if oldVal == val then return end
+
+	if val ~= "0" then
+		if cameraOut then
+			cameraHide()
+		else
+			cameraShow()
+		end
+	else
+		if IsValid(g_VoicePanelList) then
+			g_VoicePanelList:Show()
+		end
+
+		if CustomChat and IsValid(CustomChat.frame) then
+			CustomChat.frame.history:SetVisible(true)
+			hook.Remove("Think", "HideChatWithCamera_CC")
+		end
+	end
+end)
 
 hook.Add("HUDShouldDraw", "HideChatWithCamera", function(name)
 	if not cameraOut then return end
-	if not chatOut and name == "CHudChat" then return false end
+	if hideChatCvar:GetBool() and not chatOut and name == "CHudChat" then return false end
 	if hideAllGUICvar:GetBool() and name == "CHudGMod" then return false end
 end)
